@@ -1,12 +1,12 @@
 pipeline {
   agent any
   tools { 
-        maven 'Maven_3_2_5'  
+        maven 'maven-3.2.5'  
     }
    stages{
     stage('CompileandRunSonarAnalysis') {
             steps {	
-		sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=devsecops-buggyapp_testing -Dsonar.organization=devsecops-buggyapp -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=4ac72bc77db33f644f2e03f1f871a3c8f2417fa2'
+		sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=devsecopsorganization1_myproject -Dsonar.organization=devsecopsorganization1 -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=0950b01fb5dbdd4a5f088eb91dfa4f472c9a3c12'
 			}
         } 
   }
