@@ -9,61 +9,6 @@ pipeline {
 		sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=devsecopsorganization1_myproject -Dsonar.organization=devsecopsorganization1 -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=0950b01fb5dbdd4a5f088eb91dfa4f472c9a3c12'
 			}
         } 
-	stage('RunSCAAnalysisUsingSnyk') {
-            steps {		
-				withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-					sh 'mvn snyk:test -fn'
-				}
-			}
-    }	
-	pipeline {
-  agent any
-  tools { 
-        maven 'maven-3.2.5'  
-    }
-   stages{
-    stage('CompileandRunSonarAnalysis') {
-            steps {	
-		sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=devsecopsorganization1_myproject -Dsonar.organization=devsecopsorganization1 -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=0950b01fb5dbdd4a5f088eb91dfa4f472c9a3c12'
-			}
-        } 
-	stage('RunSCAAnalysisUsingSnyk') {
-            steps {		
-				withCredentials([string(credentialsId: 'SNYK_TOKEN', variable: 'SNYK_TOKEN')]) {
-					sh 'mvn snyk:test -fn'
-				}
-			}
-    }	
-	 stage('CreateJiraTicketsForSonarIssues') {
-        steps {
-            script {
-                // Fetch SonarQube scan results
-                def sonarResult = sh(script: 'curl -u 0950b01fb5dbdd4a5f088eb91dfa4f472c9a3c12: https://sonarcloud.io/api/issues/search?componentKeys=devsecopsorganization1_myproject&resolved=false', returnStdout: true).trim()
-                
-                def issues = readJSON(text: sonarResult).issues
-                issues.each { issue ->
-                    def summary = "SonarQube Issue: ${issue.message}"
-                    def description = """
-                        File: ${issue.component}
-                        Line: ${issue.line ?: 'N/A'}
-                        Severity: ${issue.severity}
-                        Rule: ${issue.rule}
-                        Issue Link: https://sonarcloud.io/project/issues?id=devsecopsorganization1_myproject&open=${issue.key}
-                    """
-                    
-                    // Create JIRA ticket
-                    jiraNewIssue site: 'YourJiraSite', issue: [
-                        fields: [
-                            project: [key: 'PROJECT_KEY'],  // Replace with your JIRA project key
-                            summary: summary,
-                            description: description,
-                            issuetype: [name: 'Bug']
-                        ]
-                    ]
-                }
-            }
-        }
-    }
 	   
 	stage('Build') { 
             steps { 
